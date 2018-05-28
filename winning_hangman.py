@@ -5,7 +5,6 @@ from collections import defaultdict
 import requests
 import re
 
-
 #frequency calculated by running Counter on the dictionary (after sorted)       
 #listed from least to most frequent                                             
 frequent = "qzxjvfwbykpmughdclrontsaie"
