@@ -7,4 +7,4 @@ counter.py: counts frequency of letters appearing in dict
 
 hangman.py: runs with over 20% accuracy tested on 400 games
 
-edited_hangma.py: runs with 100% accuracy by exploiting the fact that games only count when hangman is set free or dies, and not completing the game when there is only one guess remaining
+winning_hangman.py: runs with 100% accuracy by exploiting the fact that games only count when hangman is set free or dies, and not completing the game when there is only one guess remaining
