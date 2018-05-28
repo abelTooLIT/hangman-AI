@@ -6,29 +6,38 @@ import requests
 import re
 
 
-mostFrequent = "qzxjvfwbykpmughdclrontsai"
+#frequency calculated by running Counter on the dictionary (after sorted)       
+#listed from least to most frequent                                             
+frequent = "qzxjvfwbykpmughdclrontsaie"
 
+#runs the game 100 times
 for x in range(0,100):
     r = requests.get("http://upe.42069.fun/2u4kJ")
     value = r.json().get("status")
     guesses = r.json().get("remaining_guesses")
-        
+    
+    #keep track of which characters have been guessed and whether they were correct or incorrect  
     correct = []
     incorrect = []
 
     while (value == "ALIVE"):
+        #create hash table of words of ceratin length  
         wordList = defaultdict(list)
-        with open("unedited_dict") as f:
+        with open("dict") as f:
             for line in f:
                 line = line.strip()
                 length = len(line)
                 wordList[length].append(line)
+        
+        #count the number of underscores in phrase and start guessing word with least underscores 
         phrase = r.json().get("state")
         edit_phrase = re.sub('[^A-Za-z_ ]+','',phrase)
         blanks = edit_phrase.split(" ")
+        #which chars to exclude
         exclude = []
         for char in incorrect:
             exclude.append(char)
+        #create pattern to use with regex to find all possible words to fit chosen guess    
         count = 100
         for word in blanks:
             underscore_counter = 0
@@ -54,7 +63,7 @@ for x in range(0,100):
                 matcher = pattern.match(word)
                 if matcher: 
                     possible.append(word)
-        #print possible
+        #counts frequency of letters appearing in possible words to make the best guess 
         freq = {}
         for word in possible:
             chars = []
@@ -75,6 +84,7 @@ for x in range(0,100):
                         guess = x
                         frequency = freq[x]
                         letter_picked = 1
+        #in case no letters are found, make educated guess based on frequency of letters appearing within dict  
         if(letter_picked == 0):
             for x in mostFrequent:
                 if x not in correct and x not in incorrect:
@@ -84,18 +94,22 @@ for x in range(0,100):
         data = {'guess': guess}
         r = requests.post("http://upe.42069.fun/2u4kJ", data = data)
         updated_lives = r.json().get("remaining_guesses")
+        #update guess as correct or incorrect based on whether or not we lost a guess            
         if(updated_lives == lives-1):
             incorrect.append(guess)
         else:
             correct.append(guess)
         value = r.json().get("status")
         guesses = r.json().get("remaining_guesses")
-        if(guesses==1):
+        #ensures win rate of 100% by making it impossible to lose
+        #if we are down to one guess, just start a new game instead of possibly dying
+        if(guesses == 1):
             r = requests.get("http://upe.42069.fun/2u4kJ")
             correct = []
             incorrect = []
     print r.text
-    file = open("unedited_dict","a")
+    #keep building dict based on the lyrics from new game  
+    file = open("dict","a")
     lyric = r.json().get("lyrics")
     edited_lyric = re.sub('[^A-Za-z_ ]+','',lyric)
     words = edited_lyric.split(" ")
